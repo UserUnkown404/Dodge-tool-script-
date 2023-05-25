@@ -1,0 +1,57 @@
+local RADIUS = 20
+getgenv().on = true
+
+local players = game:GetService("Players")
+local lp = players.LocalPlayer
+
+function CheckRadius(p1, p2)
+    if p1:IsA("Player") and p2:IsA("Player") then
+        local char_1 = p1.Character
+        local char_2 = p2.Character
+        if char_1 and char_2 then
+        if char_1:FindFirstChildOfClass("Tool") then
+            if char_1.PrimaryPart and char_2.PrimaryPart then
+                if (char_1.PrimaryPart.Position - char_2.PrimaryPart.Position).magnitude <= RADIUS then
+                    return true
+                else
+                    return false
+                end
+            end
+        end
+    end
+end
+    return nil
+end
+
+function GetClosestPlayer()
+   local target = nil
+   local distance = math.huge
+ 
+   for i,v in next, players:GetPlayers() do
+       if v and v ~= lp and v.Character and v.Character:FindFirstChildOfClass('Humanoid') and v.Character:FindFirstChildOfClass('Humanoid').RootPart then
+           local plrdist = lp:DistanceFromCharacter(v.Character:FindFirstChildOfClass('Humanoid').RootPart.CFrame.p)
+           if plrdist < distance then
+               target = v
+               distance = plrdist
+           end
+       end
+   end
+ 
+   return target
+end
+
+while task.wait() do
+if getgenv().on == false then
+break
+end
+local char = lp.Character
+local success = CheckRadius(GetClosestPlayer(), lp)
+if success then
+if GetClosestPlayer().Character.PrimaryPart and char then
+local primary = GetClosestPlayer().Character.PrimaryPart
+local Dn = primary.CFrame.LookVector
+local force = 50 * char.PrimaryPart.AssemblyMass
+char.PrimaryPart:ApplyImpulse(Dn * force)
+end
+end
+end
